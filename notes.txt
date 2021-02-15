@@ -1,0 +1,82 @@
+Trace/neuron description
+- neuron = trace
+- 1.2.3
+-- 1 = well
+-- 2 = video
+-- 3 = neuron ID
+- C / C_raw (smooth / raw data)
+
+
+
+
+Request
+1. Graph: traces aligned by time (x-axis) X
+2. Showing network burst in graph (per video per well) X 
+3. Would be cool to see traces / NBs aligned of different videos (?) 
+
+Stats Request
+- n_spikes & spikes/time (secs or mins) X 
+- n_NBs & NBs/time (mins) X
+- % total measured activity (spikes) belonging to NBs X
+
+Questions: 
+- 'Would be cool to see traces / NBs aligned of different videos'
+-- als er een bepaalde periodiciteit in de data zit zou dit kunnen, over het algemeen is tijd of NB alignen voor verschillende videos arbitrait sinds de videos zijn genomen op verschillende dagen/tijden toch? 
+--- mijn bedacht aanpak: bereken tussen spikes of network_bursts (welke je gealigned wil zien over videos) de interspike/interburst tijden, maak vervolgens een alignment van bepaalde spikes/bursts waarbij die tussentijd geminimaliseerd wordt tussen videos 
+
+
+
+
+Nog te doen 
+- globale stddev x 1, gebruik n frames om te kijken of er een spike is, als nee dan gebruik frames voor bereken lokale stddev, als ja, zoek verder na de spike
+-- als geen lokale stddev mogelijk, gebruik globale stddev x 3
+--- definieer spikes 
+---- OF ANDERS: alle waarden onder de globale stddev nemen, hiervan lokale stddev bepalen
+- time offset naar 0.5 sec (Femke/Steven?)
+- spikes bepalen: boven threshold --> onder threshold = 1 spike (gaat fout bij spikes die heel frequent zijn en overlappen)
+-- probeer in te bouwen dat wanneer tijd_x > tijd_x+1 etc voor n frames (tijdspunten) dat wanneer hij dan weer omhoog gaat dat die piek opnieuw wordt gedefinieerd als spike 
+-- of ipv frames dat je 0.5 sec/1 sec naar beneden gaat
+
+- eerst alignen op eerste spike (burst?) en maximale tijd zetten op tijd van minimale trace/video.. 
+- alle traces met 1 maximale tijd, voor mooiheid figuur 
+- spikes/bursts visualiseren vanaf onset/begin tot aan piek, om overlap van volgende spikes te voorkomen in de visualisatie
+-- mogelijk voor spikes/bursts een lineplot bovenop de trace 
+- legende per video in plaats van per trace ! 
+- fixen van stats: n_NBs klopt denk ik niet vanwege mijn (te) grote loop, er gaat iets fout, ik zag het omdat er bij sommige traces meer NBs dan spikes zelve zijn, dat kan niet
+
+Wat ik heb gedaan
+- tabellen in aparte .xlsx bestanden gestopt 
+-- inlezen + mergen
+- spikes bepalen met threshold * stddev
+- NBs bepalen met overlap in spikes per groep (well, video, raw_smooth) met time_offset (omdat er gemeten wordt op 60.123 sec bij trace 1 en bij trace 2 of 60.143 sec bv)
+- stats berekenen
+- plotten: plot per groep, traces in subplot met eigen y-as, optie: plot NBs of spikes als meer transparante (of juist donkerdere) rechthoeken op/achter de traces
+
+
+Overige vragen
+1. Unit y-as waarde van de traces? (fluorescence %   deltaF / F   label krijg ik)
+2. 'Het percentage van de totale gemeten activiteit (spikes) dat behoort tot de network bursts'
+ - Mijn stap: n_NBs / n_spikes (klopt dit?)
+3. NBs alignen lijkt me lastig en mogelijk wint het niet veel info (zie boven) - alignen op de eerste burst per trace (makkelijker!), startpunt wordt de kortste video (geen infor daar weg)
+
+# compare obtained traces to video itself, see if possible small events are actual events or noise 
+# for and if working with raw data, try some deconvolution/smoothing, either fundamentally through CNMF-E or kernel type solution (paper from Ivo)
+# multiplier not lower than 2.5
+# top 1% of data distributed 
+# data driven within time intervals for bursts
+# compare spike signatures, based on conflection points and possibly clustering 
+# try same approach based on inflection points of derivative data
+# try 'simple' approach with just threshold and then cluster, before trying 'harder' with inflection points etc 
+# waveform averages around peak 
+# most sophisticated/complicated: use gathered data to reiterate traces to use different threshold for instance for single peaks burst peaks
+# can also try to first pickup 'big' peaks, then exclude the data, rerun analysis in same way for leftover 'small' (if real) peaks (better than local, likely)
+# compare with CNMF-E through it's S object (spike at timepoints)
+
+
+
+Na laatste meeting (TODO)
+- nieuwe data maken vanuit nieuwe traces excel van mark
+- Github opzetten en Mark toevoegen (Github naam: EddieKruger)
+- 99% van data distributie als threshold default 
+- met mogelijkheid global threshold * user_defined_multiplier 
+- stats fixen 
